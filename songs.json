@@ -1,0 +1,18 @@
+[
+  {
+    "id": "s1",
+    "title": "కల్వరి ప్రేమ",
+    "english": "Kalvari Prema",
+    "album": "Lenten Songs",
+    "audio": "https://your-server.com/audio/kalvari.mp3",
+    "lyrics": "ఆశ్చర్యమైన ప్రేమ – కల్వరిలోని ప్రేమ\nమరణము కంటె బలమైన ప్రేమది..."
+  },
+  {
+    "id": "s2",
+    "title": "అత్యున్నత సింహాసనము",
+    "english": "Athunnatha Simhasanamu",
+    "album": "2024 New Year",
+    "audio": "https://your-server.com/audio/athunnatha.mp3",
+    "lyrics": "అత్యున్నత సింహాసనముపై ఆసీనుడైన నా ప్రభువా..."
+  }
+]
