@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="te">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHECHEM Foundation | Songs & Lyrics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ramabhadra&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #800000;
+            --accent: #c5a059;
+            --bg: #f4f7f6;
+            --text: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Ramabhadra', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 30px;
+        }
+
+        /* HEADER & SYNC */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            padding: 5px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            width: 10px;
+            height: 10px;
+            border: 2px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rot 1s linear infinite;
+        }
+
+        @keyframes rot {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEARCH */
+        .search-container {
+            max-width: 600px;
+            margin: -25px auto 20px;
+            padding: 0 1rem;
+        }
+
+        #songSearch {
+            width: 100%;
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            outline: none;
+            font-size: 1rem;
+        }
+
+        /* GRID */
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 1rem;
+        }
+
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .song-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .song-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .song-card h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .song-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            width: 100%;
+        }
+
+        .btn-lyrics {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-lang {
+            background: #eee;
+            color: #333;
+            flex: 1;
+        }
+
+        .btn-lang.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 25px;
+            width: 90%;
+            max-width: 550px;
+            border-radius: 15px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        #lyricsBody {
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #444;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .lang-toggle {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        /* AUDIO SECTION */
+        #audioSection {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>SHECHEM FOUNDATION</h1>
+        <div class="sync-status">
+            <span id="syncIcon" class="spinner"></span>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="songSearch" placeholder="Search song title or lyrics...">
+    </div>
+
+    <div class="container">
+        <div class="song-grid" id="songGrid"></div>
+    </div>
+
+    <div id="lyricsModal" class="modal">
+        <div class="modal-content">
+            <span onclick="closeLyrics()" style="float:right; cursor:pointer; font-size:28px; line-height:1;">&times;</span>
+            <h2 id="modalTitle" style="color:var(--primary); text-align:center; padding-right: 20px;"></h2>
+
+            <div class="lang-toggle">
+                <button id="btnTe" class="btn btn-lang active" onclick="setLang('te')">తెలుగు</button>
+                <button id="btnEn" class="btn btn-lang" onclick="setLang('en')">English</button>
+            </div>
+
+            <div id="lyricsBody"></div>
+
+            <button class="btn" onclick="copyToClipboard()"
+                style="margin-top:20px; background:#25D366; color:white;">
+                📋 Copy Lyrics (WhatsApp)
+            </button>
+
+            <div id="audioSection" style="display:none;">
+                <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px; text-align: center; font-weight: bold;">
+                    🎵 Listen to Audio
+                </p>
+                <audio id="modalAudio" controls style="width: 100%;">
+                    <source id="audioSrc" src="" type="audio/mpeg">
+                </audio>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const JSON_URL = "https://raw.githubusercontent.com/Jamesephraim/Shechem-Lyrics/main/songs.json";
+        let songDatabase = [];
+        let currentActiveLyrics = { te: "", en: "" };
+
+        // 1. DATA INITIALIZATION
+        async function init() {
+            const localData = localStorage.getItem('shechem_db');
+            if (localData) {
+                songDatabase = JSON.parse(localData);
+                renderSongs(songDatabase);
+                updateStatus("Offline", "💾", false);
+            }
+
+            try {
+                const res = await fetch(JSON_URL + "?t=" + Date.now());
+                if (res.ok) {
+                    const data = await res.json();
+                    songDatabase = data;
+                    localStorage.setItem('shechem_db', JSON.stringify(data));
+                    renderSongs(songDatabase);
+                    updateStatus("Online", "✅", false);
+                }
+            } catch (e) {
+                console.log("Network error, using offline cache.");
+                if(!localData) updateStatus("Connection Error", "⚠️", false);
+            }
+        }
+
+        function updateStatus(text, icon, spin) {
+            document.getElementById('statusText').innerText = text;
+            const iconEl = document.getElementById('syncIcon');
+            iconEl.innerText = spin ? "" : icon;
+            spin ? iconEl.classList.add('spinner') : iconEl.classList.remove('spinner');
+        }
+
+        // 2. UI RENDERING
+        function renderSongs(data) {
+            const grid = document.getElementById('songGrid');
+            grid.innerHTML = data.map((song, index) => `
+                <div class="song-card">
+                    <h3>${song.title}</h3>
+                    <p>${song.title_english}</p>
+                    <button class="btn btn-lyrics" onclick="openLyrics(${index})">📖 View Lyrics & Audio</button>
+                </div>
+            `).join('');
+        }
+
+        // 3. MODAL LOGIC
+        function openLyrics(index) {
+            const song = songDatabase[index];
+            currentActiveLyrics.te = song.lyrics_telugu;
+            currentActiveLyrics.en = song.lyrics_english;
+
+            document.getElementById('modalTitle').innerText = song.title;
+            setLang('te'); 
+
+            // Handle Audio
+            const audioSection = document.getElementById('audioSection');
+            const audioControl = document.getElementById('modalAudio');
+            const audioSrc = document.getElementById('audioSrc');
+
+            if (song.audio && song.audio.trim() !== "") {
+                audioSrc.src = song.audio;
+                audioControl.load(); 
+                audioSection.style.display = 'block';
+            } else {
+                audioSection.style.display = 'none';
+                audioControl.pause();
+            }
+
+            document.getElementById('lyricsModal').style.display = 'block';
+        }
+
+        function setLang(lang) {
+            const body = document.getElementById('lyricsBody');
+            const btnTe = document.getElementById('btnTe');
+            const btnEn = document.getElementById('btnEn');
+
+            if (lang === 'te') {
+                body.innerText = currentActiveLyrics.te;
+                btnTe.classList.add('active');
+                btnEn.classList.remove('active');
+            } else {
+                body.innerText = currentActiveLyrics.en;
+                btnEn.classList.add('active');
+                btnTe.classList.remove('active');
+            }
+        }
+
+        function closeLyrics() { 
+            document.getElementById('lyricsModal').style.display = 'none'; 
+            document.getElementById('modalAudio').pause(); // Stop music on close
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('lyricsBody').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Lyrics copied to clipboard!");
+            });
+        }
+
+        // 4. SEARCH LOGIC
+        document.getElementById('songSearch').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = songDatabase.filter(s =>
+                s.title.includes(term) || 
+                s.title_english.toLowerCase().includes(term) ||
+                s.lyrics_telugu.includes(term)
+            );
+            renderSongs(filtered);
+        });
+
+        // Close on background click
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('lyricsModal')) closeLyrics();
+        }
+
+        init();
+    </script>
+
+</body>
+</html>
